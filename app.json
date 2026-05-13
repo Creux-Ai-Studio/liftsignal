@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Gym Reminder MVP",
+    "slug": "gym-reminder-mvp",
+    "scheme": "gymreminder",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "location"
+        ],
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses your location to send workout and supplement reminders when you arrive at saved places.",
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to help you save your gym and home reminder locations."
+      }
+    },
+    "android": {
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "POST_NOTIFICATIONS"
+      ],
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "package": "com.creux.gymremindermvp"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-location",
+      "expo-notifications"
+    ],
+    "extra": {
+      "router": {}
+    }
+  }
+}
