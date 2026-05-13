@@ -59,3 +59,4 @@ Useful next additions:
 ## Planning docs
 
 - `docs/PRODUCT_PLAN.md`: product brief, MVP scope, and next build priorities
+- `docs/TESTFLIGHT_RELEASE.md`: exact TestFlight + App Store Connect release steps

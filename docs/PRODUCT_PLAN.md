@@ -49,6 +49,10 @@ Early expansion:
 - geofence-based arrival reminders
 - editable weekly split
 - editable home reminder text
+- dashboard-style home screen
+- daily motivational quote
+- basic reminder tracking states
+- lightweight weight log preview
 - local notification delivery
 - local device storage
 
@@ -62,6 +66,34 @@ Early expansion:
 - Apple Health or Google Fit integrations
 - multiple geofences per user
 - reminders for meals, water, sleep, and recovery
+- Google Sheets sync for workout prewriting and quote libraries
+
+## Experience direction
+
+The home screen should feel like a modern dashboard, not a utility form.
+
+Key modules:
+
+- today card with the current workout
+- next reminder card with delivery and completion states
+- daily quote
+- weight trend snapshot
+- editable content areas until those become dedicated screens
+
+Current product focus:
+
+- solo mode only
+- one user on one device
+- make the daily routine loop feel clear and useful before adding collaboration
+
+## Data model expansion
+
+Near-term product objects:
+
+- workouts
+- reminder events
+- quote library
+- weigh-ins
 
 ## Product risks
 
@@ -111,7 +143,8 @@ Potential backend later:
 ## Repo next tasks
 
 1. Install dependencies and run a development build on a phone.
-2. Replace raw coordinate editing with a cleaner onboarding flow.
-3. Add notification preview and test trigger utilities.
-4. Add a completion screen when a reminder fires.
-5. Introduce Supabase once the on-device flow works.
+2. Split the dashboard into components instead of one large screen.
+3. Replace raw coordinate editing with a cleaner onboarding flow.
+4. Add notification preview and reminder completion tracking.
+5. Add a simple daily logging flow for workouts and weight.
+6. Introduce cloud sync only after the solo mode loop works well.

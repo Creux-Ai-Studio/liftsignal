@@ -1,20 +1,28 @@
 {
   "expo": {
-    "name": "Gym Reminder MVP",
-    "slug": "gym-reminder-mvp",
+    "name": "LiftSignal",
+    "slug": "liftsignal",
+    "owner": "creux-ai-studio",
     "scheme": "gymreminder",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
+      "bundleIdentifier": "com.creux.liftsignal",
       "supportsTablet": true,
+      "buildNumber": "1",
+      "usesAppleSignIn": false,
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "infoPlist": {
         "UIBackgroundModes": [
           "location"
         ],
         "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses your location to send workout and supplement reminders when you arrive at saved places.",
-        "NSLocationWhenInUseUsageDescription": "This app uses your location to help you save your gym and home reminder locations."
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to help you save your gym and home reminder locations.",
+        "NSUserNotificationUsageDescription": "This app sends workout and routine reminders based on your saved locations."
       }
     },
     "android": {
@@ -22,7 +30,9 @@
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
         "ACCESS_BACKGROUND_LOCATION",
-        "POST_NOTIFICATIONS"
+        "POST_NOTIFICATIONS",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ],
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -34,7 +44,10 @@
       "expo-notifications"
     ],
     "extra": {
-      "router": {}
+      "router": {},
+      "eas": {
+        "projectId": "868fef7e-a473-48b3-ab39-9962e1db1c67"
+      }
     }
   }
 }

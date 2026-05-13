@@ -17,10 +17,7 @@ import {
   type AppSettings,
   type PlaceConfig,
 } from "../src/types";
-import {
-  loadSettings,
-  saveSettings,
-} from "../src/services/storage";
+import { loadSettings, saveSettings } from "../src/services/storage";
 import {
   registerGeofences,
   unregisterGeofences,
@@ -34,6 +31,25 @@ Notifications.setNotificationHandler({
     shouldSetBadge: false,
   }),
 });
+
+const DAILY_QUOTES = [
+  "Discipline is deciding your future self matters right now.",
+  "The workout counts more when you do it without negotiation.",
+  "Small consistent reps beat dramatic resets.",
+  "Your plan should remove doubt before the first set starts.",
+];
+
+const REMINDER_METRICS = [
+  { label: "Gym arrivals", value: "18", detail: "This month" },
+  { label: "Reminders hit", value: "92%", detail: "Delivery rate" },
+  { label: "Home follow-through", value: "14", detail: "Checkoffs" },
+];
+
+const WEIGHT_LOG = [
+  { date: "Mon", weight: "184.2 lb", change: "+0.4" },
+  { date: "Wed", weight: "183.6 lb", change: "-0.6" },
+  { date: "Fri", weight: "184.0 lb", change: "+0.4" },
+];
 
 export default function HomeScreen() {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
@@ -66,11 +82,11 @@ export default function HomeScreen() {
 
   const updateWorkout = (index: number, value: string) => {
     setSettings((current) => {
-      const next = [...current.workoutDays];
-      next[index] = value;
+      const workoutDays = [...current.workoutDays];
+      workoutDays[index] = value;
       return {
         ...current,
-        workoutDays: next,
+        workoutDays,
       };
     });
   };
@@ -106,8 +122,8 @@ export default function HomeScreen() {
       }
 
       Alert.alert(
-        "Reminder zones updated",
-        "Your workout and supplement reminders are now synced on this device."
+        "Dashboard synced",
+        "The reminder dashboard and arrival automations are updated on this device."
       );
     } catch (error) {
       const message =
@@ -138,29 +154,154 @@ export default function HomeScreen() {
   if (!isReady) {
     return (
       <SafeAreaView style={styles.loadingShell}>
-        <Text style={styles.loadingText}>Loading reminder profile...</Text>
+        <Text style={styles.loadingText}>Loading dashboard...</Text>
       </SafeAreaView>
     );
   }
 
+  const todayIndex = new Date().getDay();
+  const dailyQuote = DAILY_QUOTES[todayIndex % DAILY_QUOTES.length];
+
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.hero}>
-          <Text style={styles.eyebrow}>Location-Aware Routine Coach</Text>
-          <Text style={styles.title}>Trigger the right reminder at the right place.</Text>
-          <Text style={styles.subtitle}>
-            Save one gym zone and one home zone. When the phone enters the gym,
-            it sends today&apos;s workout. When it enters home, it sends the supplement reminder.
+        <View style={styles.heroCard}>
+          <View style={styles.heroTopRow}>
+            <View style={styles.pill}>
+              <Text style={styles.pillText}>LiftSignal</Text>
+            </View>
+            <Text style={styles.heroDate}>{DAY_LABELS[todayIndex]}</Text>
+          </View>
+          <Text style={styles.heroTitle}>A dashboard for routine, not just reminders.</Text>
+          <Text style={styles.heroSubtitle}>
+            Solo mode should feel like a calm control center: today&apos;s workout,
+            your next reminder, your progress trend, and quick edits when your
+            routine changes.
+          </Text>
+
+          <View style={styles.heroStatsRow}>
+            <StatChip label="Today" value="Workout ready" />
+            <StatChip label="Next reminder" value="Home supplements" />
+          </View>
+        </View>
+
+        <View style={styles.dashboardGrid}>
+          <View style={[styles.card, styles.quoteCard]}>
+            <Text style={styles.cardEyebrow}>Daily quote</Text>
+            <Text style={styles.quoteText}>{dailyQuote}</Text>
+            <Text style={styles.cardHint}>Rotate this automatically each day.</Text>
+          </View>
+
+          <View style={[styles.card, styles.todayCard]}>
+            <Text style={styles.cardEyebrow}>Today&apos;s workout</Text>
+            <Text style={styles.mainCardTitle}>{settings.workoutDays[todayIndex]}</Text>
+            <Text style={styles.cardHint}>
+              This becomes the gym arrival notification body.
+            </Text>
+            <View style={styles.todoList}>
+              <TaskPill text="Warm-up done" />
+              <TaskPill text="Main lift logged" />
+              <TaskPill text="Recovery note" />
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.metricsRow}>
+          {REMINDER_METRICS.map((metric) => (
+            <View key={metric.label} style={styles.metricCard}>
+              <Text style={styles.metricValue}>{metric.value}</Text>
+              <Text style={styles.metricLabel}>{metric.label}</Text>
+              <Text style={styles.metricDetail}>{metric.detail}</Text>
+            </View>
+          ))}
+        </View>
+
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionHeaderTitle}>Feature direction</Text>
+          <Text style={styles.sectionHeaderText}>
+            These are the strongest ideas from your brainstorm translated into product pieces.
+          </Text>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Reminder tracking</Text>
+          <Text style={styles.helper}>
+            Instead of only sending reminders, the app should show whether they were delivered,
+            opened, and completed.
+          </Text>
+          <FeatureRow
+            title="Workout reminder tracking"
+            description="Track whether the gym notification resulted in a completed session."
+          />
+          <FeatureRow
+            title="Supplement follow-through"
+            description="Mark home reminders complete so the user can build consistency."
+          />
+          <FeatureRow
+            title="Missed reminder recovery"
+            description="If a reminder is skipped, show a catch-up CTA inside the dashboard."
+          />
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Weight log preview</Text>
+          <Text style={styles.helper}>
+            A lightweight bodyweight trend gives the app a real sense of progress.
+          </Text>
+          {WEIGHT_LOG.map((entry) => (
+            <View key={entry.date} style={styles.listRow}>
+              <Text style={styles.listTitle}>{entry.date}</Text>
+              <Text style={styles.listValue}>{entry.weight}</Text>
+              <Text style={styles.listAccent}>{entry.change}</Text>
+            </View>
+          ))}
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Solo mode vision</Text>
+          <Text style={styles.helper}>
+            Solo mode should stay private, fast, and habit-driven.
+          </Text>
+          {SOLO_FEATURES.map((feature) => (
+            <Text key={feature} style={styles.infoLine}>
+              • {feature}
+            </Text>
+          ))}
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Later ideas, not now</Text>
+          <Text style={styles.helper}>
+            These are worth keeping in mind, but they should stay out of the
+            first solo build until the core routine loop feels right.
+          </Text>
+          <FeatureRow
+            title="Google Sheets import"
+            description="Useful later for bulk workout setup once the core app is stable."
+          />
+          <FeatureRow
+            title="Coach mode"
+            description="Useful later if another person will program workouts remotely."
+          />
+          <FeatureRow
+            title="Expanded analytics"
+            description="Useful later after reminder completion and daily logging are in place."
+          />
+        </View>
+
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionHeaderTitle}>Setup and content</Text>
+          <Text style={styles.sectionHeaderText}>
+            These controls power the dashboard until we split them into proper onboarding and detail pages.
           </Text>
         </View>
 
         <View style={styles.card}>
           <View style={styles.rowBetween}>
-            <View>
-              <Text style={styles.sectionTitle}>Reminders Enabled</Text>
+            <View style={styles.flexText}>
+              <Text style={styles.sectionTitle}>Reminders enabled</Text>
               <Text style={styles.helper}>
-                Turn this off to stop all arrival-based reminders.
+                Toggle all arrival-based automations without deleting the plan.
               </Text>
             </View>
             <Switch
@@ -168,30 +309,30 @@ export default function HomeScreen() {
               onValueChange={(value) =>
                 setSettings((current) => ({ ...current, remindersEnabled: value }))
               }
-              trackColor={{ false: "#334155", true: "#22c55e" }}
-              thumbColor="#f8fafc"
+              trackColor={{ false: "#334155", true: "#f97316" }}
+              thumbColor="#fff7ed"
             />
           </View>
         </View>
 
         <PlaceEditor
-          label="Gym Zone"
+          label="Gym zone"
           place={settings.gym}
           onFieldChange={(field, value) => updatePlaceField("gym", field, value)}
           onUseCurrentLocation={() => void autofillFromCurrentLocation("gym")}
         />
 
         <PlaceEditor
-          label="Home Zone"
+          label="Home zone"
           place={settings.home}
           onFieldChange={(field, value) => updatePlaceField("home", field, value)}
           onUseCurrentLocation={() => void autofillFromCurrentLocation("home")}
         />
 
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Workout Of The Day</Text>
+          <Text style={styles.sectionTitle}>Weekly split editor</Text>
           <Text style={styles.helper}>
-            Edit each day so the gym alert feels personal instead of generic.
+            Daily workout reminders feel much stronger when the plan is filled in clearly.
           </Text>
           {settings.workoutDays.map((day, index) => (
             <View key={DAY_LABELS[index]} style={styles.inputGroup}>
@@ -200,40 +341,31 @@ export default function HomeScreen() {
                 style={styles.input}
                 value={day}
                 onChangeText={(value) => updateWorkout(index, value)}
-                placeholder="Push day, lower body, cardio..."
-                placeholderTextColor="#64748b"
+                placeholder="Push, pull, legs, conditioning..."
+                placeholderTextColor="#94a3b8"
               />
             </View>
           ))}
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Supplement Reminder</Text>
+          <Text style={styles.sectionTitle}>Home reminder message</Text>
           <Text style={styles.helper}>
-            Keep this message general and accurate for the person using the app.
+            Keep it flexible so it can later represent supplements, recovery, hydration, or sleep.
           </Text>
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Reminder Message</Text>
+            <Text style={styles.inputLabel}>Reminder copy</Text>
             <TextInput
               style={[styles.input, styles.multiLineInput]}
               value={settings.supplementMessage}
               onChangeText={(value) =>
                 setSettings((current) => ({ ...current, supplementMessage: value }))
               }
-              placeholder="Take evening supplements and log them."
-              placeholderTextColor="#64748b"
+              placeholder="Take your evening supplements and log how you feel."
+              placeholderTextColor="#94a3b8"
               multiline
             />
           </View>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>How This MVP Works</Text>
-          <Text style={styles.infoLine}>1. Save your gym and home coordinates.</Text>
-          <Text style={styles.infoLine}>2. Grant background location and notifications.</Text>
-          <Text style={styles.infoLine}>3. The app registers two geofences on-device.</Text>
-          <Text style={styles.infoLine}>4. Arrival at the gym sends the workout plan for today.</Text>
-          <Text style={styles.infoLine}>5. Arrival at home sends the supplement reminder message.</Text>
         </View>
 
         <Pressable
@@ -242,11 +374,43 @@ export default function HomeScreen() {
           disabled={isSaving}
         >
           <Text style={styles.saveButtonText}>
-            {isSaving ? "Saving..." : "Save And Activate"}
+            {isSaving ? "Saving..." : "Save dashboard setup"}
           </Text>
         </Pressable>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function StatChip({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={styles.statChip}>
+      <Text style={styles.statChipLabel}>{label}</Text>
+      <Text style={styles.statChipValue}>{value}</Text>
+    </View>
+  );
+}
+
+function TaskPill({ text }: { text: string }) {
+  return (
+    <View style={styles.taskPill}>
+      <Text style={styles.taskPillText}>{text}</Text>
+    </View>
+  );
+}
+
+function FeatureRow({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <View style={styles.featureRow}>
+      <Text style={styles.featureTitle}>{title}</Text>
+      <Text style={styles.featureDescription}>{description}</Text>
+    </View>
   );
 }
 
@@ -266,10 +430,10 @@ function PlaceEditor({
   return (
     <View style={styles.card}>
       <View style={styles.rowBetween}>
-        <View>
+        <View style={styles.flexText}>
           <Text style={styles.sectionTitle}>{label}</Text>
           <Text style={styles.helper}>
-            Radius controls how close someone needs to be before the reminder fires.
+            Radius controls how close the person has to be before the app fires the reminder.
           </Text>
         </View>
         <Switch
@@ -281,13 +445,13 @@ function PlaceEditor({
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.inputLabel}>Name</Text>
+        <Text style={styles.inputLabel}>Place name</Text>
         <TextInput
           style={styles.input}
           value={place.name}
           onChangeText={(value) => onFieldChange("name", value)}
-          placeholder="My main gym"
-          placeholderTextColor="#64748b"
+          placeholder="Main gym or home base"
+          placeholderTextColor="#94a3b8"
         />
       </View>
 
@@ -325,9 +489,9 @@ function PlaceEditor({
           />
         </View>
         <View style={styles.halfInput}>
-          <Text style={styles.inputLabel}>Autofill</Text>
+          <Text style={styles.inputLabel}>Quick action</Text>
           <Pressable style={styles.secondaryButton} onPress={onUseCurrentLocation}>
-            <Text style={styles.secondaryButtonText}>Use Current Location</Text>
+            <Text style={styles.secondaryButtonText}>Use current location</Text>
           </Pressable>
         </View>
       </View>
@@ -345,6 +509,12 @@ const DAY_LABELS = [
   "Saturday",
 ];
 
+const SOLO_FEATURES = [
+  "Fast daily dashboard with zero coach overhead",
+  "Personal reminders, quote, and weight trend",
+  "Simple fill-in workout plan editing",
+];
+
 function safeNumber(value: string, fallback: number) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
@@ -357,66 +527,191 @@ function round(value: number) {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#0f172a",
+    backgroundColor: "#08111f",
   },
   loadingShell: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#0f172a",
+    backgroundColor: "#08111f",
   },
   loadingText: {
-    color: "#e2e8f0",
+    color: "#dbeafe",
     fontSize: 16,
   },
   content: {
-    padding: 20,
+    padding: 18,
+    paddingBottom: 32,
     gap: 16,
   },
-  hero: {
-    paddingTop: 12,
-    paddingBottom: 10,
-    gap: 10,
-  },
-  eyebrow: {
-    color: "#38bdf8",
-    fontSize: 13,
-    fontWeight: "700",
-    letterSpacing: 1.1,
-    textTransform: "uppercase",
-  },
-  title: {
-    color: "#f8fafc",
-    fontSize: 34,
-    lineHeight: 40,
-    fontWeight: "800",
-  },
-  subtitle: {
-    color: "#cbd5e1",
-    fontSize: 16,
-    lineHeight: 24,
-  },
-  card: {
-    backgroundColor: "#111827",
-    borderRadius: 24,
-    padding: 18,
+  heroCard: {
+    backgroundColor: "#0f172a",
+    borderRadius: 30,
+    padding: 22,
     borderWidth: 1,
     borderColor: "#1e293b",
     gap: 14,
+    shadowColor: "#000000",
+    shadowOpacity: 0.22,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
   },
-  rowBetween: {
+  heroTopRow: {
     flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
+    alignItems: "center",
+  },
+  pill: {
+    borderRadius: 999,
+    backgroundColor: "#172554",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  pillText: {
+    color: "#bfdbfe",
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+  },
+  heroDate: {
+    color: "#94a3b8",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  heroTitle: {
+    color: "#f8fafc",
+    fontSize: 32,
+    lineHeight: 37,
+    fontWeight: "800",
+  },
+  heroSubtitle: {
+    color: "#cbd5e1",
+    fontSize: 15,
+    lineHeight: 24,
+  },
+  heroStatsRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  statChip: {
+    flex: 1,
+    backgroundColor: "#111827",
+    borderRadius: 18,
+    padding: 14,
+    gap: 6,
+    borderWidth: 1,
+    borderColor: "#1f2937",
+  },
+  statChipLabel: {
+    color: "#94a3b8",
+    fontSize: 12,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    fontWeight: "700",
+  },
+  statChipValue: {
+    color: "#f8fafc",
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  dashboardGrid: {
     gap: 16,
   },
-  row: {
-    flexDirection: "row",
+  card: {
+    backgroundColor: "#0f172a",
+    borderRadius: 26,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: "#1e293b",
     gap: 12,
   },
-  halfInput: {
-    flex: 1,
+  quoteCard: {
+    backgroundColor: "#172033",
+  },
+  todayCard: {
+    backgroundColor: "#111827",
+  },
+  cardEyebrow: {
+    color: "#38bdf8",
+    fontSize: 12,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+  },
+  quoteText: {
+    color: "#f8fafc",
+    fontSize: 24,
+    lineHeight: 31,
+    fontWeight: "700",
+  },
+  mainCardTitle: {
+    color: "#f8fafc",
+    fontSize: 22,
+    lineHeight: 29,
+    fontWeight: "800",
+  },
+  cardHint: {
+    color: "#94a3b8",
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  todoList: {
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
+  },
+  taskPill: {
+    borderRadius: 999,
+    backgroundColor: "#1e293b",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  taskPillText: {
+    color: "#e2e8f0",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  metricsRow: {
+    gap: 12,
+  },
+  metricCard: {
+    backgroundColor: "#111827",
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: "#1f2937",
+  },
+  metricValue: {
+    color: "#fb923c",
+    fontSize: 28,
+    fontWeight: "800",
+  },
+  metricLabel: {
+    color: "#f8fafc",
+    fontSize: 15,
+    fontWeight: "700",
+    marginTop: 4,
+  },
+  metricDetail: {
+    color: "#94a3b8",
+    fontSize: 13,
+    marginTop: 2,
+  },
+  sectionHeader: {
+    gap: 6,
+    paddingHorizontal: 2,
+    paddingTop: 4,
+  },
+  sectionHeaderTitle: {
+    color: "#f8fafc",
+    fontSize: 21,
+    fontWeight: "800",
+  },
+  sectionHeaderText: {
+    color: "#94a3b8",
+    fontSize: 14,
+    lineHeight: 21,
   },
   sectionTitle: {
     color: "#f8fafc",
@@ -427,20 +722,74 @@ const styles = StyleSheet.create({
     color: "#94a3b8",
     fontSize: 14,
     lineHeight: 20,
-    marginTop: 4,
+  },
+  featureRow: {
+    paddingTop: 2,
+    gap: 4,
+  },
+  featureTitle: {
+    color: "#e2e8f0",
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  featureDescription: {
+    color: "#94a3b8",
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  listRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderTopWidth: 1,
+    borderTopColor: "#1e293b",
+    paddingTop: 12,
+  },
+  listTitle: {
+    color: "#cbd5e1",
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  listValue: {
+    color: "#f8fafc",
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  listAccent: {
+    color: "#38bdf8",
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  rowBetween: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 14,
+  },
+  row: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  flexText: {
+    flex: 1,
+    gap: 4,
+  },
+  halfInput: {
+    flex: 1,
+    gap: 8,
   },
   inputGroup: {
     gap: 8,
   },
   inputLabel: {
     color: "#cbd5e1",
-    fontSize: 13,
-    fontWeight: "600",
+    fontSize: 12,
+    fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: 0.8,
   },
   input: {
-    borderRadius: 14,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: "#334155",
     backgroundColor: "#020617",
@@ -450,12 +799,12 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   multiLineInput: {
-    minHeight: 92,
+    minHeight: 100,
     textAlignVertical: "top",
   },
   secondaryButton: {
     minHeight: 52,
-    borderRadius: 14,
+    borderRadius: 16,
     backgroundColor: "#1d4ed8",
     alignItems: "center",
     justifyContent: "center",
@@ -463,28 +812,27 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: {
     color: "#eff6ff",
-    fontWeight: "700",
     textAlign: "center",
+    fontWeight: "700",
   },
   infoLine: {
     color: "#cbd5e1",
     fontSize: 14,
-    lineHeight: 21,
+    lineHeight: 20,
   },
   saveButton: {
-    marginTop: 4,
-    marginBottom: 18,
     minHeight: 58,
-    borderRadius: 18,
-    backgroundColor: "#22c55e",
+    borderRadius: 22,
+    backgroundColor: "#f97316",
     alignItems: "center",
     justifyContent: "center",
+    marginTop: 4,
   },
   saveButtonDisabled: {
     opacity: 0.7,
   },
   saveButtonText: {
-    color: "#052e16",
+    color: "#fff7ed",
     fontSize: 17,
     fontWeight: "800",
   },
