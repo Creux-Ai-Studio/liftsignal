@@ -1,6 +1,7 @@
+import "react-native-gesture-handler";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import "../src/services/geofencing";
+// import "../src/services/geofencing";
 import "../global.css";
 
 export default function RootLayout() {

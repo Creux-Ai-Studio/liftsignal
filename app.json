@@ -7,17 +7,18 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "bundleIdentifier": "com.creux.liftsignal",
       "supportsTablet": true,
-      "buildNumber": "1",
+      "buildNumber": "6",
       "usesAppleSignIn": false,
       "config": {
         "usesNonExemptEncryption": false
       },
       "infoPlist": {
         "UIBackgroundModes": [
+          "location",
           "location"
         ],
         "NSLocationAlwaysAndWhenInUseUsageDescription": "This app uses your location to send workout and supplement reminders when you arrive at saved places.",
@@ -27,6 +28,12 @@
     },
     "android": {
       "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "POST_NOTIFICATIONS",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
         "ACCESS_BACKGROUND_LOCATION",
@@ -48,6 +55,12 @@
       "eas": {
         "projectId": "868fef7e-a473-48b3-ab39-9962e1db1c67"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/868fef7e-a473-48b3-ab39-9962e1db1c67"
     }
   }
 }
