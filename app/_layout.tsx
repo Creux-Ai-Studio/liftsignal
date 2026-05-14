@@ -1,6 +1,7 @@
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "../src/services/geofencing";
+import "../global.css";
 
 export default function RootLayout() {
   return (
@@ -8,24 +9,16 @@ export default function RootLayout() {
       <StatusBar style="light" />
       <Stack
         screenOptions={{
-          headerStyle: {
-            backgroundColor: "#111827",
-          },
-          headerTintColor: "#f8fafc",
-          headerTitleStyle: {
-            fontWeight: "700",
-          },
+          headerShown: false,
           contentStyle: {
-            backgroundColor: "#0f172a",
+            backgroundColor: "#050507",
           },
         }}
       >
-        <Stack.Screen
-          name="index"
-          options={{
-            title: "LiftSignal",
-          }}
-        />
+        <Stack.Screen name="index" />
+        <Stack.Screen name="reminders" />
+        <Stack.Screen name="workout" />
+        <Stack.Screen name="profile" />
       </Stack>
     </>
   );
